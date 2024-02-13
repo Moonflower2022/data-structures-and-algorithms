@@ -17,7 +17,7 @@ unsorted = [
 # incorrect implementation
 
 '''
-def insertion_sort(arr):
+def insertion_sorted(arr):
     if type(arr) != list:
         raise Exception("Not of type 'list', type was ", str(type(arr)))
     if len(arr) <= 1:
@@ -32,7 +32,7 @@ def insertion_sort(arr):
     return sorted_arr
 '''
 
-def insertion_sort(arr):
+def insertion_sorted(arr):
     if type(arr) != list:
         raise Exception("Not of type 'list', type was ", str(type(arr)))
     if len(arr) <= 1:
@@ -56,9 +56,9 @@ def insertion_sort(arr):
 
 for arr in unsorted:
     print("array: ", arr)
-    assert insertion_sort(arr) == sorted(arr), f"oopsie poopie the lists are not the same :( my sort: {insertion_sort(arr)} != python sort: {sorted(arr)}"
+    assert insertion_sorted(arr) == sorted(arr), f"oopsie poopie the lists are not the same :( my sort: {insertion_sorted(arr)} != python sort: {sorted(arr)}"
     start_time = time.time()
-    insertion_sort(arr)
+    insertion_sorted(arr)
     print("my function running time: ", time.time() - start_time)
 
     start_time = time.time()
