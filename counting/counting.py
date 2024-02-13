@@ -1,4 +1,5 @@
 import math
+import time
 
 def counting_sorted(arr):
     if type(arr) != list:
@@ -23,17 +24,14 @@ def counting_sorted(arr):
 
     out = [None] * len(arr)
 
-    index = 0
+    out_index = 0
 
-    while index < len(buckets):
-        print(index)
-        if buckets[index] != 0:
-            for j in range(buckets[index]):
-                out[index+j] = index + minimum
-            index += j
-        else:
-            index += 1
-
+    for i in range(len(buckets)):
+        if buckets[i] != 0:
+            for j in range(buckets[i]):
+                out[out_index + j] = i + minimum
+            out_index += buckets[i]
+    
     return out
 
 unsorted = [

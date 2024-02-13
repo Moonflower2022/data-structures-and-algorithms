@@ -37,18 +37,13 @@ def insertion_sorted(arr):
         raise Exception("Not of type 'list', type was ", str(type(arr)))
     if len(arr) <= 1:
         return arr
-    
-    def swap(array, i1, i2):
-        temp = array[i1]
-        array[i1] = array[i2]
-        array[i2] = temp
 
     arr_copy = [*arr] # make copy
     for i in range(1, len(arr_copy)): # dont include 0 bc first element is alr good
         j = i
         while j >= 1: # if j is 0 then j - 1 would be bad
             if arr_copy[j] < arr_copy[j-1]: # check if we are smaller than previous
-                swap(arr_copy, j, j-1) # switch
+                arr_copy[j], arr_copy[j-1] = arr_copy[j-1], arr_copy[j] # switch
                 j = j - 1
                 continue # keep checking
             break # otherwise, we are in good place so check next
