@@ -25,7 +25,6 @@ def counting_sorted(arr):
     out = [None] * len(arr)
 
     out_index = 0
-
     for i in range(len(buckets)):
         if buckets[i] != 0:
             for j in range(buckets[i]):

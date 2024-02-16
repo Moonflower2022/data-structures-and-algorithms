@@ -73,7 +73,7 @@ int* selection_sort(int length, int* unsorted)
                 completed++;
             }
         }
-    }    
+    }
     return unsorted;
 }
 
