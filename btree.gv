@@ -1,0 +1,20 @@
+digraph g {
+	node [height=.1 shape=circle]
+	node0 [label=2]
+	node1 [label=N]
+	node2 [label=3]
+	node3 [label=N]
+	node4 [label=2]
+	node5 [label=4]
+	node6 [label=Y]
+	node7 [label=A]
+	node8 [label=C]
+	node0:f2 -> node4:f1
+	node0:f0 -> node1:f1
+	node1:f0 -> node2:f1
+	node1:f2 -> node3:f1
+	node2:f2 -> node8:f1
+	node2:f0 -> node7:f1
+	node4:f2 -> node6:f1
+	node4:f0 -> node5:f1
+}
