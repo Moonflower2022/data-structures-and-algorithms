@@ -1,12 +1,10 @@
-import graphviz
-
 # elements on the left are less
 # duplicate values allowed
 
 class Node:
-    def __init__(self, value, left_node=None, right_node=None) -> None:
+    def __init__(self, value, frequency=1, left_node=None, right_node=None) -> None:
         self.value = value
-        self.frequency = 1
+        self.frequency = frequency
         self.left_node = left_node
         self.right_node = right_node
 
@@ -14,15 +12,26 @@ class Node:
         return f"<AVLNode object; value: {self.value}, frequency: {self.frequency}, left_node: {self.left_node}, right_node: {self.right_node}>"
 
 class AVLNode(Node):
-    def __init__(self, value, parent, left_node=None, right_node=None, left_height=None, height=None, right_height=None) -> None:
-        super().__init__(value, left_node, right_node)
-        self.left_height = left_height
-        self.right_height = right_height
-        self.height = height # definition: max(left_height, right_height)
+    def __init__(self, value, parent, frequency=1, left_node=None, right_node=None, height=1) -> None:
+        super().__init__(value, frequency, left_node, right_node)
+        self.height = height # definition: max(self.left_node.height, self.right_node.height) + 1
         self.parent = parent
 
+    def update_height(self):
+        if self.left_node == None and self.right_node == None:
+            raise Exception("called update_height on node with no children")
+        if self.left_node != None and self.right_node != None: # and self.right_node != None
+            self.height = max(self.left_node.height, self.right_node.height) + 1
+        elif self.left_node != None:
+            self.height = self.left_node.height + 1
+        else: # self.right_node != None
+            self.height = self.right_node.height + 1
+
+        if self.parent:
+            self.parent.update_height()
+
     def __str__(self) -> str:
-        return super().__str__()[:-1]  + f", left_height: {self.left_height}, right_height: {self.right_height}>"
+        return super().__str__()[:-1]  + f", height: {self.height}>"
     
 def insert(node, value):
     if node.value == value:
@@ -30,23 +39,16 @@ def insert(node, value):
     elif value > node.value:
         if node.right_node == None:
             node.right_node = AVLNode(value, node)
-            node.right_height += 1
-            increment_parent_height(node, "right")
+            node.update_height()
         else:
             insert(node.right_node, value)
     elif value < node.value:
         if node.left_node == None:
             node.left_node = AVLNode(value, node)
-            node.left_height += 1
-            increment_parent_height(node, "left")
+            node.update_height()
         else:
             insert(node.left_node, value)
 
-def increment_parent_height(node, side):
-    if side == "left":
-        node.parent.left_height += 1
-    else: # side == "right"
-        node.parent.right_height += 1
 
 def AVL_insert(root, value):
     pass
@@ -55,6 +57,21 @@ def find_min(root):
     if root.left_node:
         return find_min(root.left_node)
     return root.value
+
+root = AVLNode(9, None)
+
+insert(root, 8)
+insert(root, 4)
+insert(root, 5)
+insert(root, 2)
+insert(root, 1)
+
+print(root)
+
+print(find_min(root))
+
+import graphviz
+import os
 
 def visualize_binary_tree(root):
     # does not show frequency
@@ -73,22 +90,10 @@ def visualize_binary_tree(root):
             add_nodes_and_edges(node.right_node)
 
     add_nodes_and_edges(root)
-    dot.render('binary_tree', view=True, format='png')
 
-root = AVLNode(9, None)
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, 'AVL_tree')
 
-print(root)
-
-'''
-
-root = Node(6)
-insert(root, 8)
-insert(root, 4)
-insert(root, 5)
-insert(root, 2)
-insert(root, 1)
-
-print(find_min(root))
+    dot.render(filename, view=True, format='png')
 
 visualize_binary_tree(root)
-'''
