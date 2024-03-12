@@ -2,9 +2,9 @@
 # duplicate values allowed
 
 class Node:
-    def __init__(self, value, left_node=None, right_node=None) -> None:
+    def __init__(self, value, frequency=1, left_node=None, right_node=None) -> None:
         self.value = value
-        self.frequency = 1
+        self.frequency = frequency
         self.left_node = left_node
         self.right_node = right_node
 

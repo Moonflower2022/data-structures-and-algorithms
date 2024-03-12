@@ -1,4 +1,18 @@
+from AVL import AVLNode, insert, find_min
 import graphviz
+import os
+
+root = AVLNode(9)
+
+insert(root, 8)
+insert(root, 4)
+insert(root, 5)
+insert(root, 2)
+insert(root, 1)
+
+print(root)
+
+print(find_min(root))
 
 def visualize_binary_tree(root):
     # does not show frequency
@@ -17,4 +31,10 @@ def visualize_binary_tree(root):
             add_nodes_and_edges(node.right_node)
 
     add_nodes_and_edges(root)
-    dot.render('binary_tree', view=True, format='png')
+
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, 'AVL_tree')
+
+    dot.render(filename, view=True, format='png')
+
+visualize_binary_tree(root)
