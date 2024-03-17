@@ -1,12 +1,6 @@
 # elements on the left are less
 # duplicate values allowed
 
-# import sys
-
-# sys.path.append("../")
-
-# from ..binary_trees.btree import Node
-
 class Node:
     def __init__(self, value, frequency=1, left_node=None, right_node=None) -> None:
         self.value = value
@@ -24,89 +18,146 @@ class AVLNode(Node):
         self.parent = parent
         self.balancing_factor = 0 # definition: self.right_node.height - self.left_node.height
 
-    def update_height(self) -> None:
-        if self.left_node == None and self.right_node == None:
-            raise Exception("called update_height on node with no children")
-        if self.left_node != None and self.right_node != None: # and self.right_node != None
-            self.height = max(self.left_node.height, self.right_node.height) + 1
-        elif self.left_node != None:
-            self.height = self.left_node.height + 1
-        else: # self.right_node != None
-            self.height = self.right_node.height + 1
-
-        if self.parent: 
-            self.parent.update_height()
-
-    def update_balancing_factor(self) -> None:
-        if self.left_node == None and self.right_node == None:
-            raise Exception("called update_height on node with no children")
-        if self.left_node != None and self.right_node != None: # and self.right_node != None
-            self.balancing_factor = self.right_node.height - self.left_node.height
-        elif self.left_node != None:
-            self.balancing_factor = -self.left_node.height
-        else: # self.right_node != None
-            self.balancing_factor = self.right_node.height
-
-        if self.parent: 
-            self.parent.update_balancing_factor()
-
     def __str__(self) -> str:
         return super().__str__()[:-1]  + f", height: {self.height}>"
+
+class AVLTree():
+    def __init__(self, root) -> None:
+        self.root = root
     
-def AVL_insert(node, value):
-    if node.value == value:
-        node.frequency += 1
-    elif value > node.value:
-        if node.right_node == None:
-            node.right_node = AVLNode(value, parent=node)
-            node.update_height()
-            node.update_balancing_factor()
+    def insert(self, value, node=None):
+        if node == None:
+            node = self.root
+
+        if node.value == value:
+            node.frequency += 1
+        elif value > node.value:
+            if node.right_node == None:
+                node.right_node = AVLNode(value, parent=node)
+                self.update_height(node)
+                self.update_balancing_factor(node)
+            else:
+                self.insert(value, node=node.right_node)
+        elif value < node.value:
+            if node.left_node == None:
+                node.left_node = AVLNode(value, parent=node)
+                self.update_height(node)
+                self.update_balancing_factor(node)
+            else:
+                self.insert(value, node=node.left_node)
+
+    def find_min(self, node=None):
+        if node == None:
+            node = self.root
+        if node.left_node:
+            return self.find_min(node=node.left_node)
+        return node.value
+
+    def update_height(self, node) -> None:
+        if node.left_node == None and node.right_node == None:
+            raise Exception("called update_height on node with no children")
+        
+        node.height = max(0 if node.left_node == None else node.left_node.height, 0 if node.right_node == None else node.right_node.height) + 1
+
+        if node.parent: 
+            self.update_height(node.parent)
+
+    def update_balancing_factor(self, node) -> None:
+        if node.left_node == None and node.right_node == None:
+            raise Exception("called update_height on node with no children")
+        node.balancing_factor = (0 if node.right_node == None else node.right_node.height) - (0 if node.left_node == None else node.left_node.height)
+
+        if node.parent: 
+            self.update_balancing_factor(node.parent)
+
+        if abs(node.balancing_factor) > 1:
+            self.rebalance(node)
+
+    def rebalance(self, node):
+        higher_child = AVLTree._higher_subtree_child(node)
+    
+        if higher_child == node.left_node:
+            if node.left_node.balancing_factor <= 0:
+                ret = self.rotate_right(node, node.left_node)
+                self.assign(node, ret)
+
+            else: # node.left_node.balancing_factor > 0:
+                node1 = self.rotate_left(node.left_node, node.left_node.right_node)
+                self.assign(node.left_node, node1)
+                node2 = self.rotate_right(node, node.left_node)
+                self.assign(node, node2)
+
+        else: # higher_subtree_child == node.right_node:
+            if node.right_node.balancing_factor >= 0:
+                ret = self.rotate_left(node, node.right_node)
+                self.assign(node, ret)
+            else: # node.left_node.balancing_factor < 0:
+                node1 = self.rotate_right(node.right_node, node.right_node.left_node)
+                self.assign(node.right_node, node1)
+                node2 = self.rotate_left(node, node.right_node)
+                self.assign(node, node2)
+
+    def assign(self, node, value):
+        if node == self.root:
+            self.root = value
         else:
-            AVL_insert(node.right_node, value)
-    elif value < node.value:
-        if node.left_node == None:
-            node.left_node = AVLNode(value, parent=node)
-            node.update_height()
-            node.update_balancing_factor()
+            is_left_child = True if node.parent.value > node.value else False
+            if is_left_child:
+                node.parent.left_node = value
+            else:
+                node.parent.right_node = value
+            
+    def _higher_subtree_child(node):
+        if node.left_node == None and node.right_node == None:
+            raise Exception("called _higher_subtree_child on node with no children")
+        if node.left_node != None and node.right_node != None:
+            return node.left_node if node.left_node.height >= node.right_node.height else node.right_node
+        elif node.left_node != None:
+            return node.left_node
+        else: # self.right_node != None
+            return node.right_node
+        
+    def rotate_left(self, X, Z):
+        # look at rotate_left.png
+        # middle: t23
+
+        is_root = X == self.root
+
+        middle = Z.left_node
+        X.right_node = middle
+        if middle != None:
+            middle.parent = X
+        Z.left_node = X
+        if is_root:
+            self.root = Z
+            Z.parent = None
+        X.parent = Z
+        if Z.balancing_factor == 0:
+            X.balancing_factor = 1
+            Z.balancing_factor = -1
         else:
-            AVL_insert(node.left_node, value)
+            X.balancing_factor = 0
+            Z.balancing_factor = 0
+        return Z
+    
+    def rotate_right(self, X, Z):
+        # rotate_left.png but flipped on the vertical axis
 
-def rotate_left(X, Z):
-    # look at rotate_left.png
-    # middle: t23
+        is_root = X == self.root
 
-    middle = Z.left_node
-    X.right_node = middle
-    if middle != None:
-        middle.parent = X
-    Z.left_node = X
-    X.parent = Z
-    if Z.balancing_factor == 0:
-        X.balancing_factor = 1
-        Z.balancing_factor = -1
-    else:
-        X.balancing_factor = 0
-        Z.balancing_factor = 0
-    return Z
-
-def rotate_right(X, Z):
-    # rotate_left.png but flipped on the vertical axis
-
-    middle = Z.right_node
-    X.left_node = middle
-    if middle != None:
-        middle.parent = X
-    Z.right_node = X
-    X.parent = Z
-    if Z.balancing_factor == 0:
-        X.balancing_factor = -1
-        Z.balancing_factor = 1
-    else:
-        X.balancing_factor = 0
-        Z.balancing_factor = 0
-    return Z
-
-def find_min(root):
-    if root.left_node:
-        return find_min(root.left_node)
-    return root.value
+        middle = Z.right_node
+        X.left_node = middle
+        if middle != None:
+            middle.parent = X
+        Z.right_node = X
+        if is_root:
+            self.root = Z
+            Z.parent = None
+        X.parent = Z
+        if Z.balancing_factor == 0:
+            X.balancing_factor = -1
+            Z.balancing_factor = 1
+        else:
+            X.balancing_factor = 0
+            Z.balancing_factor = 0
+        return Z
