@@ -14,6 +14,9 @@ for i in range(len(numbers)):
 
 print(tree.find_min())
 
+tree.delete(5)
+tree.delete(6)
+
 def visualize_AVL_tree(tree):
     # does not show frequency
 

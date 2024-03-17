@@ -106,3 +106,37 @@ class AVLTree():
         if node.left_node:
             return self.find_min(node=node.left_node)
         return node.value
+    
+    def delete(self, value):
+        self.root = self.delete_node(value, self.root)
+
+    def delete_node(self, value, node):
+        if node is None:
+            return None
+
+        if value < node.value:
+            node.left_node = self.delete_node(value, node.left_node)
+        elif value > node.value:
+            node.right_node = self.delete_node(value, node.right_node)
+        else:
+            # Case 1: Node has no children
+            if node.left_node is None and node.right_node is None:
+                del node
+                return None
+            # Case 2: Node has one child
+            elif node.left_node is None:
+                temp = node.right_node
+                del node
+                return temp
+            elif node.right_node is None:
+                temp = node.left_node
+                del node
+                return temp
+            # Case 3: Node has two children
+            else:
+                successor_value = self.find_min(node.right_node)
+                node.value = successor_value
+                node.right_node = self.delete_node(successor_value, node.right_node)
+
+        return self.rebalance(node)
+    
